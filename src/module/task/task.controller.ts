@@ -16,8 +16,8 @@ export class TaskController {
   }
 
   @Get()
-  findAll() {
-    return this.taskService.findAll();
+  findAll(@Req() req: Request) {
+    return this.taskService.findAll(req);
   }
 
   @Get(':id')
@@ -26,12 +26,12 @@ export class TaskController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: taskRequestDTO) {
-    return this.taskService.update(id, data);
+  update(@Req() req: Request, @Param('id') id: string, @Body() data: taskRequestDTO) {
+    return this.taskService.update(req, id, data);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taskService.remove(id);
+  remove(@Req() req: Request, @Param('id') id: string) {
+    return this.taskService.remove(req, id);
   }
 }

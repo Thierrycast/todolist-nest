@@ -28,9 +28,11 @@ export class TaskService {
     return task
   }
 
-  async findAll() {
+  async findAll(req: Request) {
     
-    const tasks = await this.prisma.task.findMany()
+    const {id} = req.user as User
+
+    const tasks = await this.prisma.task.findMany({where:{userId: id}})
     return tasks
   }
 
@@ -45,11 +47,17 @@ export class TaskService {
     return task
   }
 
-  async update(id: string, data: taskRequestDTO) {
+  async update(req: Request, id: string, data: taskRequestDTO) {
+    const { id: userId } = req.user as User;
+
     const taskExist = await this.prisma.task.findFirst({where: {id}})
 
     if (!taskExist) {
       throw new HttpException("essa task não existe", 404)
+    } 
+    
+    if (taskExist.userId !== userId) {
+      throw new HttpException("não autorizado", 400)
     }
 
     const taskUpdated = await this.prisma.task.update({data, where:{id}})
@@ -61,11 +69,17 @@ export class TaskService {
     return taskUpdated
   }
 
-  async remove(id: string) {
+  async remove(req: Request, id: string) {
+       const { id: userId } = req.user as User;
+    
     const taskExist = await this.prisma.task.findFirst({where: {id}})
 
     if (!taskExist) {
       throw new HttpException("essa task não existe", 404)
+    } 
+    
+    if (taskExist.userId !== userId) {
+      throw new HttpException("não autorizado", 400)
     }
 
     return await this.prisma.task.delete({where:{id}})
